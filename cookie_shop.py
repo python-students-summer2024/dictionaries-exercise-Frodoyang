@@ -16,6 +16,19 @@ def bake_cookies(filepath):
     :returns: A list of all cookie data, where each cookie is represented as a dictionary.
     """
     # write your code for this function below here.
+    f = open(filepath, "r")
+    next(f)
+    dict = []
+    for line in f:
+        entry = line.strip().split(',')
+        dict.append({
+            'id':int(entry[0]),
+            'title':entry[1],
+            'description':entry[2],
+            'price':float(entry[3].strip('$'))
+        })
+    return(dict)
+
 
 
 def welcome():
@@ -27,6 +40,8 @@ def welcome():
 
     """
     # write your code for this function below this line
+    print("""Welcome to the Python Cookie Shop!
+    We feed each according to their need.""")
 
 
 def display_cookies(cookies):
@@ -35,7 +50,7 @@ def display_cookies(cookies):
     - Sample output - we show only two cookies here, but imagine the output continues for all cookiese:
         Here are the cookies we have in the shop for you:
 
-          #1 - Basboosa Semolina Cake
+         #1 - Basboosa Semolina Cake
           This is a This is a traditional Middle Eastern dessert made with semolina and yogurt then soaked in a rose water syrup.
           Price: $3.99
 
@@ -48,7 +63,10 @@ def display_cookies(cookies):
     :param cookies: a list of all cookies in the shop, where each cookie is represented as a dictionary.
     """
     # write your code for this function below this line
-
+    print("Here are the cookies we have in the shop for you:")
+    for item in cookies:
+        formatted_price = f"${item['price']:.2f}"
+        print(f"\n #{item['id']} - {item['title']}\n {item['description']}\n Price: {formatted_price}")
 
 def get_cookie_from_dict(id, cookies):
     """
@@ -59,6 +77,9 @@ def get_cookie_from_dict(id, cookies):
     :returns: the matching cookie, as a dictionary
     """
     # write your code for this function below this line
+    for item in cookies:
+        if id == item['id']:
+            return(item)
 
 
 def solicit_quantity(id, cookies):
@@ -77,6 +98,14 @@ def solicit_quantity(id, cookies):
     :returns: The quantity the user entered, as an integer.
     """
     # write your code for this function below this line
+    cookie_dict = get_cookie_from_dict(id, cookies)
+    name = cookie_dict['title']
+    num = input(f'My favorite! How many {name} would you like?').strip()
+    while num.isnumeric() == False or int(num)<0:
+        num = input(f'My favorite! How many {name} would you like?').strip()
+    price = f"{int(num)*cookie_dict['price']:.2f}"
+    print(f"Your subtotal for {num} {name} is ${price}.")
+    return(int(num))
 
 
 def solicit_order(cookies):
@@ -96,6 +125,21 @@ def solicit_order(cookies):
     :returns: A list of the ids and quantities of each cookies the user wants to order.
     """
     # write your code for this function below this line
+    order_list = []
+    while True:
+        input_id = input('enter an id:').strip().lower()
+        if input_id in ['finished', 'done', 'quit', 'exit']:
+            break
+        elif input_id.isdigit():
+            input_id = int(input_id)
+            if 0 < input_id <= 10:
+                quantity = solicit_quantity(input_id,cookies)
+                order_list.append({'id': input_id,'quantity': quantity})
+        else:
+            continue
+    return(order_list)
+
+
 
 
 def display_order_total(order, cookies):
@@ -118,6 +162,20 @@ def display_order_total(order, cookies):
 
     """
     # write your code for this function below this line
+    total_price = 0.0
+    print("Thank you for your order. You have ordered:\n")
+    for item in order:
+        cookie = next((c for c in cookies if c['id'] == item['id']), None)
+        if cookie:
+            item_cost = item['quantity'] * cookie['price']
+            total_price += item_cost
+            print(f"- {item['quantity']} {cookie['title']}")
+    
+    formatted_total = f"${total_price:.2f}"
+    print(f"\nYour total is {formatted_total}.")
+    print("Please pay with Bitcoin before picking-up.\n")
+    print("Thank you!\n-The Python Cookie Shop Robot.")
+
 
 
 def run_shop(cookies):
